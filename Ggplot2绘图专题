@@ -1,1 +1,36 @@
+##加载耗油量数据mpg数据集及变量说明
+##cty和hwy记录城市和高速公路驾驶耗油量（英里/加仑）
+##displ发动机排量，drv驱动系统（f前轮驱动，r后轮驱动，4四轮驱动）
+##model车辆型号，共38种车型，class车辆类别（双座汽车，suv，小型汽车等）
+library(ggplot2)
+mpg
+
+##ggplot2由三个基本构成；数据、图形属性映射、几何对象
+ggplot（mpg, aes(displ, hwy)）+ geom_point()
+
+##颜色、大小、形状及其他图形属性
+aes(displ, hwy, colour = class )
+aes(displ, hwy, shape = drv )
+aes(displ, hwy, size = cyl)
+plot(mpg$displ, mpg$hwy)#散点图
+
+##ggplot2通过标度将数据（如汽车类别）转换为图形属性（如黄红绿），每一个标度对应着一个属性的映射
+ggplot（mpg, aes(displ, cty, colour = class)）+ geom_point()
+
+##给某一图形属性赋固定值而不使用标度,写在aes()函数外侧即可
+ggplot（mpg, aes(displ, hwy)）+ geom_point(aes(colour = "blue"))  #区别，上边有坐标指南，而下边颜色符合要求
+ggplot（mpg, aes(displ, hwy)）+ geom_point(colour = "blue")
+vignette("ggplot2-specs")#查阅颜色及其他图形属性所需的值
+
+##分面，展示分类变量，分割为若干子集，然后创建图形矩阵，再把每一个子集绘制到图形矩阵的窗格中
+ggplot（mpg, aes(displ, hwy)）+ geom_point() + facet_wrap(~class)  #封装型
+
+##几何对象，替换geom_point()可以得到其他类型代码
+geom_smooth()  #拟合一条平滑曲线，并将曲线和标准误差展示在图中
+geom_smooth()  #绘制箱线图，用以概括一系列点的分布情况
+geom_histogram()  #和geom_freqpoly()展示连续型变量的分布
+geom_bar()  #绘制分类变量的分布情况
+geom_path()  #和geom_line()在数据之间绘制连线，折线图只能由左到右或随时间趋势变化，路径图则可以是任意方向
+
+
 
