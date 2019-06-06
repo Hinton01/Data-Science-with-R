@@ -1,4 +1,4 @@
-# Part one
+##Part one
 ##Load fuel consumption data mpg data set and variable description
 ##cty和hwy记录城市和高速公路驾驶耗油量（英里/加仑）
 ##displ发动机排量，drv驱动系统（f前轮驱动，r后轮驱动，4四轮驱动）
@@ -263,3 +263,46 @@ ggplot(diamonds, aes(depth, fill = cut, colour =cut)) +
   geom_density(alpha = 0.2, na,rm = TRUE) +
   xlim(58, 68) +
   theme(legend.position = "none")
+
+ggplot(diamonds, aes(clarity, depth)) + geom_boxplot()
+ggplot(diamonds, aes(carat, depth)) + 
+  geom_boxplot(aes(group = cut_width(carat, 0.1))) +
+  xlim(NA, 2.05)  #geom_boxplot仅展示五个数据节点和一个异常值，x轴可以是分类、离散变量，连续变量需设置x轴分组方式cut_width()
+
+ggplot(diamonds, aes(clarity, depth)) + geom_violin()
+ggplot(diamonds, aes(carat, depth)) + 
+  geom_violin(aes(group = cut_width(carat, 0.1))) +
+  xlim(NA, 2.05)  #geom_violin小提琴图，箱线图精简版，geom_dotplot()侧重小数据集，精确展示每个点的分布，避免重叠
+
+##小规模数据遮盖绘制问题，可以借助中空点或更小的数据点解决
+df <- data.frame(x = rnorm(2000), y = rnorm(2000))
+norm <- ggplot(df, aes(x, y)) + xlab(NULL) + ylab(NULL)
+norm + geom_point()
+norm + geom_point(shape = 1)  #中空点
+norm + geom_point(shape = ".")  #像素大小
+
+##大规模数据，改变α参数（透明度），最小透明度1/500
+norm + geom_point(alpha = 1 / 3)
+norm + geom_point(alpha = 1 / 5)
+norm + geom_point(alpha = 1 / 10)
+
+norm + geom_bin2d()
+norm + geom_bin2d(bins = 10)  #geom_bin2d直方图的二维推广，正方箱形
+
+library(hexbin)
+norm + geom_hex()
+norm + geom_hex(bins = 10)  #geom_hex六边形优于正方箱形
+
+ggplot(diamonds, aes(color)) + geom_bar()  #展示每组钻石的数量
+
+ggplot(diamonds, aes(color, price)) + 
+  geom_bar(stat = "summary_bin", fun.y = mean)  #展示每组钻石的均价
+
+ggplot(diamonds, aes(table, depth)) +
+  geom_bin2d(binwidth = 1, na.rm = TRUE) +
+  xlim(50,70) + ylim = (50,70)
+
+ggplot(diamonds, aes(table, depth, z = price)) + 
+  geom_raster(binwidth = 1, stat = "summary_2d", fun = mean,
+              na.rm = TRUE) + 
+  xlim(50, 70) +ylim = (50, 70)
