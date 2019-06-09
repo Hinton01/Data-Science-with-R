@@ -331,3 +331,135 @@ p + geom_point()  #添加图层
 #mapping_可用aes()设定参数，NULL默认，data_设为NULL默认省略，geom_几何对象名称，stat统计变化简称，position调整重叠的对象
 p + layer(mapping = NULL, data = NULL, geom = "point",
           stat = "identity", position = "identity")  #等价于layer(mapping, data, geom = "point",...)
+
+##分面 
+facet_null()  #单个图像
+facet_wrap()  #1维转2维
+facet_grid()  #2维面板
+
+mpg2 <- subset(mpg,
+               cyl != 5& drv %in% c("4", "f") & class != "2seater")
+base <- ggplot(mpg2, aes(displ, hwy)) + geom_blank() + 
+  xlab(NULL) + ylab(NULL)
+
+##封装分面
+base + facet_wrap(~class, ncol = 3)
+base + facet_wrap(~class, ncol = 3, as.table = FALSE)
+base + facet_wrap(~class, nrow = 3)
+base + facet_wrap(~class, nrow = 3, dir = "v")  #ncol&nrow定义行列，as.table布局，TURE—最高值显示在右下角，FALSE—最高值显示在右上角，drv定义封装方向，h横向，v纵向
+
+##连续型变量分面要进行离散化
+cut_interval()  #划分n个长度相同的部分
+cut_width(x, width)  #划分为宽度为width部分
+cut_number(x, n = 10)  #划分为n个相同数目的部分
+
+mpg2$displ_w <- cut_width(mpg2$displ, 1)
+mpg2$displ_i <- cut_interval(mpg2$displ, 6)
+mpg2$displ_n <- cut_number(mpg2$displ, 6)
+plot <- ggplot(mpg2, aes(cty, hwy)) +
+  geom_point() +
+  labs(x = NULL, y = NULL)
+plot + facet_wrap(~disp_w, nrow = 1)
+plot + facet_wrap(~disp_n, nrow = 1)
+
+##theme
+theme_bw()  #白色背景，细灰色网格线
+theme_linedraw()  #素描
+theme_light()  #浅灰色线条和坐标轴
+theme_dark()  #暗黑风格
+theme_minimal()  #简约
+theme_classic()  #经典
+theme_void()  #完全空白
+
+##图像元素
+plot.background()  #图像背景
+plot.title()  #标题
+plot.margin()  #边距
+
+##坐标轴元素
+axis.line()  #平行坐标轴线条
+axis.text()  #坐标轴标签
+axis.text.x()  #x轴标签
+axis.text.y()  #y轴标签
+axis.title()  #坐标轴标题
+axis.title.x()  #x轴标题
+axis.title.y()  #y轴标题
+axis.ticks()  #轴须标签
+axis.ticks.length()  #轴须标签的长度
+
+##图例元素
+legend.backgroud()  #图例背景
+legend.key()  #图例符号背景
+legend.key.size()  #图例符号大小
+legend.key.height()  #图例符号高度
+legend.margin()  #图例边距
+legend.text()  #图例标签
+legend.text.align()  #标签对齐，0-1右至左
+legend.title()  #图例名
+legend.title.align()  #标签对齐，0-1右至左
+
+##面板元素
+panel.backgroud()  #背景
+panel.border()  #边界
+panel.grid.major()  #主网格线
+panel.grid.major.x()  #竖直主网格线
+panel.grid.major.y()  #水平主网格线
+panel.grid.minor()  #次网格线
+panel.grid.minor.x()  #竖直次网格线
+panel.grid.minor.y()  #水平次网格线
+aspect.ratio()  #图像宽高比
+
+##分面元素
+strip.backgroud()  #标签背景
+strip.text()  #条状文本
+strip.text.x()  #水平条状文本
+strip.text.y()  #竖直条状文本
+panel.spacing()  #分面间边距
+panel.spacing.x()  #竖直分面间边距
+panel.spacing.y()  #水平分面间边距
+
+##Part three 数据整理
+library("lubridate")
+gather(ec2, key = year, value = unemp, `2006`:`2015`)  
+##gather():data数据集，key存储各列名新变量名，value存储各列值得变量名
+##...指定聚集变量A,B,C,D，或A:D范围,-E指定不需要的列，na.rm=TRUE自动移除没有值的月份
+
+##spread()是gather的逆运算
+spread(weather, key = obs, value = val)
+
+##separate和unite:分离和合并
+##data-数据集，col-拆分列的列名，into-拆分后新生成列名，字符型变量，sep-对如何拆分原变量的描述，如_下划线，指定位置整数
+##https://github.com/rstudio/EDAWR了解who数据集
+separate(trt, var, c("time", "treatment"),"_")
+
+##数据集https://barryowlingson.github.io/hadleyverse
+bpd <- readr::read_table()
+bpd_1 <- gather(bpd, week, bp, week1:week3)  #化宽为长
+bpd_1
+bpd_2 <- separate(bpd_1, bp, c("sys", "dia"),"/")  #分离bp的收缩压和舒张压
+bpd_2
+bpd_3 <- extract(bpd_2, week, "week", "(\\d)",convert = TRUE)  #extract将week数字单独取出来作为该列的值(\\d)表示任何数字
+bpd_4 <- dplyr::arrange(bpd_3, name, week)  #arrange()对每个人行排列
+bpd_4
+
+##数据集https://stackoverflow.com/questions/29775461
+set.seed(127)  #保证结果可复现，设置随机种子
+scores <- dplyr::data_frame(
+  person = rep(c("Greg", "Sally", "Sue"), each = 2),
+  time = rep(c("pre","post"), 3)
+  test1 = round(rnorm(6, mean = 80, sd = 4), 0),
+  test2 = round(jitter(test1, 15), 0)
+)
+scores
+
+scores_1 <- gather(scores, test, score, test1:test2)  #test1,test2转长数据
+scores_1
+
+scores_2 <- spread(scores_1, time, score)  #pre前，post后，展开time和score变量
+scores_2
+
+score_3 <- mutate(score_2, diff = post - pre)  #干预前后成绩差值
+score_3
+
+ggplot(score_3, aes(person, diff, color = test)) +
+  geom_hline(size = 2, colour = "")
