@@ -462,4 +462,83 @@ score_3 <- mutate(score_2, diff = post - pre)  #干预前后成绩差值
 score_3
 
 ggplot(score_3, aes(person, diff, color = test)) +
-  geom_hline(size = 2, colour = "")
+  geom_hline(size = 2, colour = "whith", yintercept = 0) +
+  geom_point() + 
+  geom_path(aes(group = persons), colour = "grey50",
+            arrow = arrow(length = unit(0.25, "cm")))  #考试成绩的可视化
+
+summary(diamonds)
+head(diamonds)
+ggplot(diamonds, aes(x, y)) + geom_bin2d()  #一部分明显有问题的值是维度为0的钻石
+filter(diamonds, x == 0| y == 0)  #filter()函数筛选
+diamonds_ok <- filter(diamonds, x > 0, y > 0, y < 20)
+ggplot(diamonds_ok, aes(x, y)) + geom_bin2d() +
+         geom_abline(slope = 1,colour = "white", size = 1,alpha = 0.5)
+
+x == y  #x与y相等
+x != y  #x和y不等
+x %in% c("a","b","c")  #x属于右侧
+！x  #翻转TRUE和FALSE，保留所有x为FALSE
+x&y  #若x与y都为TRUE，则为TRUE
+x|y  #x与y其中之一（或两者都）为TRUE，则为TRUE
+xor(x, y)  #x与y其中之一为TRUE，且不都为TRUE，则为TRUE
+
+by_clarity <- group_by(diamonds, clarity)  #group_by定义分组变量，按净度分组然后汇总
+sum_clarity <- summarise(by_clarity, price = mean(price))  #summarise()定义如何每组汇总
+
+cut_depth <- mutate(cut_depth, prop = n / sum(n))
+ggplot(cut_depth, aes(depth, prop, colour = cut)) +
+  geom_line()  #mutate()将计数转换为比例
+
+n()  #计数
+n_distinct()  #计数
+mean()  #中位数
+median()  #中位数
+sd()  #离散程度
+mad()  #离散程度
+IQR()  #离散程度
+quartile()  #极端值
+min()  #极端值
+max()  #极端值
+first()  #位置
+last()  #位置
+nth(x,2)  #位置
+na.rm = TRUE  #汇总前删去缺失值
+
+diamonds <- diamonds %>%
+  filter(carat <= 2) %>%
+  mutate(lcarat = log2(carat), lprice = log2(price))
+
+##单个组件
+bestfit <- geom_smooth(
+  method = "lm",
+  se = FALSE,
+  colour = alpha("steelblue", 0.5),
+  size = 2)  #把可复用的代码片段封装成一个函数
+ggplot(mpg, aes(cty, hwy)) + geom_point() + bestfit
+ggplot(mpg, aes(displ, hwy)) + geom_point() + bestfit
+
+geom_lm <- function(formula = y ~ x,
+    colour = alpha("steelblue", 0.5), size = 2,...) {
+  geom_smooth(formula = formula, se = FALSE,
+              method = "lm", colour = colour, size = size,...)}  #...参数可以接受不定数目的附加参数
+ggplot(mpg, aes(displ, 1 / hwy)) + geom_point() + geom_lm()
+ggplot(mpg, aes(displ,1 / hwy)) + geom_point() +
+  geom_lm(y ~ poly(x, 2), size = 1, colour = "red")
+
+##多个组件
+geom_mean <- function() {
+  list(stat_summary(fun.y = "mean", geom = "bar", fill = "grey70"),
+       stat_summary(fun.data = "mean_cl_normal",
+                    geom = "errorbar", width = 0.4))}
+ggplot(mpg, aes(class, cty)) + geom_mean()
+ggplot(mpg, aes(drv,cty)) + geom_mean()
+
+geom_mean <- function(se = TRUE) {
+  list(
+    stat_summary(fun.y = "mean", geom = "bar", fill = "grey70"),
+    if(se)
+       stat_summary(fun.data = "mean_cl_normal",
+                    geom = "errorbar", width = 0.4))}
+ggplot(mpg, aes(drv, cty)) + geom_mean()
+ggplot(mpg, aes(drv,cty)) + geom_mean(se = FALSE)
